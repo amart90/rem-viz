@@ -2,8 +2,8 @@ sheep_lakes_targets <- list(
   tar_target(
     p2_sheeplakes_aoi_latlon,
     data.frame(
-      lon = c(-105.607670, -105.626282),
-      lat = c(40.403629, 40.399073)
+      lon = c(-105.604633, -105.625647),
+      lat = c(40.403237, 40.397307)
     )
   ),
 
@@ -12,6 +12,14 @@ sheep_lakes_targets <- list(
     crop_tif(
       dem_tif = p1_estes_dem_tif,
       lat_lon_df = p2_sheeplakes_aoi_latlon
+    )
+  ),
+
+  tar_terra_rast(
+    p2_sheeplakes_dem_resample,
+    resample_by_factor(
+      dem_rast = p2_sheeplakes_dem,
+      resample_factor = 2
     )
   ),
 
@@ -33,7 +41,7 @@ sheep_lakes_targets <- list(
   tar_terra_rast(
     p2_sheeplakes_rem_rast,
     build_rem(
-      dem = p2_sheeplakes_dem,
+      dem = p2_sheeplakes_dem_resample,
       flowlines = p2_sheeplakes_flowlines,
       n_stream_pts = 600,
       refine_line = TRUE,
@@ -80,6 +88,18 @@ sheep_lakes_targets <- list(
     ),
 
     tar_target(
+      p3_sheeplake_rem_plot,
+      plot_rem(
+        rem_rast = p2_sheeplakes_rem_rast[["rem"]],
+        # fmt: skip
+        pal = pal,
+        grad_vals = grad_vals,
+        lower_clamp = 0,
+        upper_clamp = 4.5
+      )
+    ),
+
+    tar_target(
       p3_sheeplake_print_png,
       generate_print(
         rem_plot = p3_sheeplake_rem_plot,
@@ -90,18 +110,6 @@ sheep_lakes_targets <- list(
         output_height = 11,
         h_margins = 1,
         top_margin = 3,
-      )
-    ),
-
-    tar_target(
-      p3_sheeplake_rem_plot,
-      plot_rem(
-        rem_rast = p2_sheeplakes_rem_rast[["rem"]],
-        # fmt: skip
-        pal = pal,
-        grad_vals = grad_vals,
-        lower_clamp = 0,
-        upper_clamp = 4.5
       )
     ),
 

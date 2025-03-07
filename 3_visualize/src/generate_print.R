@@ -38,7 +38,8 @@ generate_print <- function(
       fontfamily = "Raleway",
       size = 48,
       color = "gray20"
-    )
+    ) +
+    ggplot2::theme_void()
 
   cowplot::ggsave2(
     out_path,
@@ -46,7 +47,8 @@ generate_print <- function(
     width = output_width,
     height = output_height,
     units = "in",
-    bg = "white"
+    bg = "white",
+    dpi = 320
   )
 
   return(out_path)

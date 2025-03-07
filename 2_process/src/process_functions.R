@@ -69,3 +69,16 @@ crop_flowlines <- function(
     terra::intersect(ext_poly) |>
     terra::project(out_crs)
 }
+
+resample_by_factor <- function(dem_rast, resample_factor = 2) {
+  template_rast <- rast(
+    #nrow = terra::nrow(dem_rast) * 2,
+    #ncol = terra::ncol(dem_rast) * 2,
+    crs = terra::crs(dem_rast),
+    extent = terra::ext(dem_rast),
+    resolution = terra::res(dem_rast) / resample_factor,
+    vals = NA
+  )
+  terra::resample(dem_rast, template_rast) |>
+    setNames("dem")
+}
