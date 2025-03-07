@@ -1,3 +1,9 @@
+# Files
+*/out/*
+!1_fetch/out/.empty
+!1_process/out/.empty
+!3_visualize/out/.empty
+
 # History files
 .Rhistory
 .Rapp.history
