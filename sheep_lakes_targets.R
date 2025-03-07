@@ -41,10 +41,9 @@ sheep_lakes_targets <- list(
     )
   ),
 
-  tar_target(
-    p3_sheeplakes_pals,
+  tar_map(
     # fmt: skip
-    tibble::tibble(
+    values = tibble(
       names = c("maiz", "concha", "aurora", "frida", "naturaleza", "taurus1",
                 "taurus2", "tierra"),
       pal = list(
@@ -75,21 +74,21 @@ sheep_lakes_targets <- list(
         taurus2 = c(0, 0.0001, 0.01, 0.1, 0.12, 0.2, 0.22, 0.4, 1),
         tierra = c(0, 0.0001, 0.01, 0.1, 0.12, 0.2, 0.22, 0.4, 1)
       )
-    )
-  ),
-
-  tar_target(
-    p3_sheeplake_rem_plots,
-    plot_rem(
-      rem_rast = p2_sheeplakes_rem_rast[["rem"]],
-      # fmt: skip
-      pal = unlist(p3_sheeplakes_pals$pal),
-      grad_vals = unlist(p3_sheeplakes_pals$grad_vals),
-      lower_clamp = 0,
-      upper_clamp = 4.5
     ),
-    pattern = map(p3_sheeplakes_pals),
-    iteration = "list"
+
+    tar_target(
+      p3_sheeplake_rem_plot,
+      plot_rem(
+        rem_rast = p2_sheeplakes_rem_rast[["rem"]],
+        # fmt: skip
+        pal = pal,
+        grad_vals = grad_vals,
+        lower_clamp = 0,
+        upper_clamp = 4.5
+      )
+    ),
+
+    names = names
   ),
 
   tar_target(

@@ -6,6 +6,8 @@
 # Load packages required to define the pipeline:
 library(targets)
 library(geotargets)
+library(tarchetypes)
+library(tibble)
 
 # Set target options:
 tar_option_set(
