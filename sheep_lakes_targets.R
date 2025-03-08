@@ -34,7 +34,13 @@ sheep_lakes_targets <- list(
       layer = "NHDFlowline",
       line_crs = "EPSG:4269",
       lat_lon_df = p2_sheeplakes_aoi_latlon,
-      out_crs = terra::crs(p2_sheeplakes_dem)
+      out_crs = terra::crs(p2_sheeplakes_dem),
+      ReachCode_filter = c(
+        "10190006000090",
+        "10190006000091",
+        "10190006000089",
+        "10190006000089"
+      )
     )
   ),
 
@@ -78,12 +84,12 @@ sheep_lakes_targets <- list(
         maiz = c(0, 0.02, 0.05, 0.1, 0.15, 0.3, 1),
         concha = c(0, 0.0001, 0.01, 0.1, 0.12, 0.2, 0.22, 0.4, 1),
         aurora = c(0, 0.0001, 0.01, 0.1, 0.12, 0.2, 0.22, 0.4, 1),
-        frida = c(0, 0.0001, 0.01, 0.12, 0.14, 0.16, 0.2, 0.3, 1),
-        naturaleza = c(0, 0.0001, 0.01, 0.12, 0.14, 0.16, 0.2, 0.3, 1),
+        frida = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1) ,
+        naturaleza = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1) ,
         taurus1 = c(0, 0.0001, 0.01, 0.1, 0.12, 0.2, 0.22, 0.4, 1),
-        taurus2 = c(0, 0.0001, 0.01, 0.12, 0.14, 0.16, 0.2, 0.3, 1),
+        taurus2 = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1) ,
         tierra = c(0, 0.0001, 0.01, 0.1, 0.12, 0.2, 0.22, 0.4, 1),
-        bw = c(0, 0.0001, 0.01, 0.12, 0.14, 0.16, 0.2, 0.3, 1)
+        bw = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1) 
       )
     ),
 
@@ -94,7 +100,7 @@ sheep_lakes_targets <- list(
         # fmt: skip
         pal = pal,
         grad_vals = grad_vals,
-        lower_clamp = 0,
+        lower_clamp = -0.1,
         upper_clamp = 4.5
       )
     ),

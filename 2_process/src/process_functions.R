@@ -57,17 +57,23 @@ crop_flowlines <- function(
   layer,
   line_crs,
   lat_lon_df,
-  out_crs
+  out_crs,
+  ReachCode_filter = NULL
 ) {
   ext_poly <- envelop(lat_lon_df, line_crs)
 
-  terra::vect(
+  out <- terra::vect(
     flowline_path,
     layer = layer,
     filter = ext_poly
   ) |>
     terra::intersect(ext_poly) |>
     terra::project(out_crs)
+
+  if (!is.null(ReachCode_filter)) {
+    out <- terra::subset(out, out$ReachCode %in% ReachCode_filter)
+  }
+  return(out)
 }
 
 resample_by_factor <- function(dem_rast, resample_factor = 2) {

@@ -22,4 +22,4 @@ source("fall_river_targets.R")
 source("sheep_lakes_targets.R")
 
 # Replace the target list below with your own:
-c(p1_fetch_targets, fall_river_targets, sheep_lakes_targets)
+c(p1_fetch_targets, sheep_lakes_targets)
