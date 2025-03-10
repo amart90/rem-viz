@@ -11,7 +11,8 @@ sheep_lakes_targets <- list(
     p2_sheeplakes_dem,
     crop_tif(
       dem_tif = p1_estes_dem_tif,
-      lat_lon_df = p2_sheeplakes_aoi_latlon
+      lat_lon_df = p2_sheeplakes_aoi_latlon,
+      scale = 10 / 8
     )
   ),
 
@@ -120,12 +121,13 @@ sheep_lakes_targets <- list(
       generate_print(
         rem_plot = p3_sheeplake_rem_plot,
         rem_rast = p2_sheeplakes_rem_rast,
-        out_path = sprintf("3_visualize/out/sheeplake_%s_11_17.png", names),
+        out_path = sprintf("3_visualize/out/sheeplake_%s_11_14.png", names),
         label_text = "Fall River at Sheep Lakes   |   Rock Mountain National Park",
-        output_width = 17,
+        output_width = 14,
         output_height = 11,
-        h_margins = 1,
-        top_margin = 3,
+        h_margins = 2,
+        top_margin = 1.5,
+        label_y = 4
       )
     ),
 

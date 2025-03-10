@@ -12,9 +12,7 @@ envelop <- function(pts_df, out_crs, in_crs = "EPSG: 4326") {
   pts_df |>
     assertr::verify(assertr::has_only_names(c("lat", "lon"))) |>
     assertr::verify(assertr::has_class("lat", "lon", class = "numeric")) |>
-    assertr::verify(length(lat) > 1) |>
-    assertr::assert(assertr::within_bounds(-90, 90), lat) |>
-    assertr::assert(assertr::within_bounds(-180, 180), lon)
+    assertr::verify(length(lat) > 1)
 
   pts_df |>
     terra::vect(geom = c("lon", "lat"), crs = in_crs) |>
@@ -34,7 +32,7 @@ envelop <- function(pts_df, out_crs, in_crs = "EPSG: 4326") {
 #' @return a wrapped terra SpatRaster; to use, this object must be unwrapped
 #'   first using `terra::unwrap()`
 #'
-crop_tif <- function(dem_tif, lat_lon_df) {
+crop_tif <- function(dem_tif, lat_lon_df, scale = NULL) {
   # Mosaic rasters if multiple files; otherwise, read in single raster
   if (length(dem_tif) > 1) {
     dem_rast <- terra::sprc(dem_tif) |>
@@ -43,7 +41,26 @@ crop_tif <- function(dem_tif, lat_lon_df) {
     dem_rast <- terra::rast(dem_tif)
   }
 
-  ext_poly <- envelop(pts_df = lat_lon_df, out_crs = crs(dem_rast))
+  ext_poly <- envelop(pts_df = lat_lon_df, out_crs = terra::crs(dem_rast))
+
+  if (!is.null(scale)) {
+    bbox <- terra::ext(ext_poly)
+    old_width <- unname(bbox$xmax - bbox$xmin)
+    old_height <- unname(bbox$ymax - bbox$ymin)
+    in_scale <- old_width / old_height
+
+    new_height <- old_width * scale
+    height_diff <- new_height - old_height
+
+    ext_poly <- envelop(
+      pts_df = data.frame(
+        lon = c(bbox$xmin, bbox$xmax),
+        lat = c(bbox$ymin - (height_diff / 2), bbox$ymax + (height_diff / 2))
+      ),
+      out_crs = terra::crs(dem_rast),
+      in_crs = terra::crs(ext_poly)
+    )
+  }
 
   # Crop and set name
   dem_rast <- terra::crop(dem_rast, ext_poly) |>

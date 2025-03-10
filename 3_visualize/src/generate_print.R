@@ -33,7 +33,7 @@ generate_print <- function(
     cowplot::draw_label(
       label = label_text,
       x = output_width / 2,
-      y = output_height - top_margin - plot_height - 0.15,
+      y = label_y,
       vjust = 1,
       fontfamily = "Raleway",
       size = 48,
