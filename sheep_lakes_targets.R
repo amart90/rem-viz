@@ -12,7 +12,8 @@ sheep_lakes_targets <- list(
     crop_tif(
       dem_tif = p1_estes_dem_tif,
       lat_lon_df = p2_sheeplakes_aoi_latlon,
-      scale = 10 / 8
+      scale = 10 / 8,
+      offset_frac = 0.1
     )
   ),
 
@@ -101,7 +102,11 @@ sheep_lakes_targets <- list(
         taurus1_rev = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1),
         concha_rev = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1),
         maiz_rev = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1)
-      )
+      ),
+      bg_col = "white",
+      text_col = c("white", "white", "white", "white", "white", "white",
+                   "white", "white", "black", "black", "black",
+                   "black")
     ),
 
     tar_target(
@@ -117,7 +122,7 @@ sheep_lakes_targets <- list(
     ),
 
     tar_target(
-      p3_sheeplake_print_png,
+      p3_sheeplake_print_8_10_border_png,
       generate_print(
         rem_plot = p3_sheeplake_rem_plot,
         rem_rast = p2_sheeplakes_rem_rast,
@@ -127,7 +132,26 @@ sheep_lakes_targets <- list(
         output_height = 11,
         h_margins = 2,
         top_margin = 1.5,
-        label_y = 4
+        label_y = 3,
+        bg_col = bg_col,
+        text_col = text_col
+      )
+    ),
+
+    tar_target(
+      p3_sheeplake_print_8_10_png,
+      generate_print(
+        rem_plot = p3_sheeplake_rem_plot,
+        rem_rast = p2_sheeplakes_rem_rast,
+        out_path = sprintf("3_visualize/out/sheeplake_%s_8_10.png", names),
+        label_text = "Fall River at Sheep Lakes   |   Rock Mountain National Park",
+        output_width = 10,
+        output_height = 8,
+        h_margins = 0,
+        top_margin = 0,
+        label_y = 1.5,
+        bg_col = bg_col,
+        text_col = text_col
       )
     ),
 

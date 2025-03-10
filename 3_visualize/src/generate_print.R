@@ -7,12 +7,14 @@ generate_print <- function(
   output_height = 11,
   h_margins = 1,
   top_margin = 3,
-  label_y = NULL
+  label_y = NULL,
+  bg_col = "white",
+  text_col = "black"
 ) {
   plot_scale <- terra::nrow(rem_rast) / terra::ncol(rem_rast)
   plot_width <- output_width - (2 * h_margins)
   plot_height <- plot_width * plot_scale
-  label_y <- label_y %||% output_height - top_margin - plot_height - 0.15
+  label_y <- label_y %||% (output_height - top_margin - plot_height - 0.15)
 
   sysfonts::font_add_google(name = "Raleway", regular.wt = 300)
   showtext::showtext_auto()
@@ -37,7 +39,7 @@ generate_print <- function(
       vjust = 1,
       fontfamily = "Raleway",
       size = 48,
-      color = "gray20"
+      color = text_col
     ) +
     ggplot2::theme_void()
 
@@ -47,7 +49,7 @@ generate_print <- function(
     width = output_width,
     height = output_height,
     units = "in",
-    bg = "white",
+    bg = bg_col,
     dpi = 320
   )
 

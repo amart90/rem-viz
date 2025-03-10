@@ -32,7 +32,7 @@ envelop <- function(pts_df, out_crs, in_crs = "EPSG: 4326") {
 #' @return a wrapped terra SpatRaster; to use, this object must be unwrapped
 #'   first using `terra::unwrap()`
 #'
-crop_tif <- function(dem_tif, lat_lon_df, scale = NULL) {
+crop_tif <- function(dem_tif, lat_lon_df, scale = NULL, offset_frac = 0) {
   # Mosaic rasters if multiple files; otherwise, read in single raster
   if (length(dem_tif) > 1) {
     dem_rast <- terra::sprc(dem_tif) |>
@@ -49,13 +49,15 @@ crop_tif <- function(dem_tif, lat_lon_df, scale = NULL) {
     old_height <- unname(bbox$ymax - bbox$ymin)
     in_scale <- old_width / old_height
 
-    new_height <- old_width * scale
-    height_diff <- new_height - old_height
+    new_height <- old_width / scale
+    height_diff <- (new_height - old_height) / 2
+
+    offset_y <- offset_frac * new_height
 
     ext_poly <- envelop(
       pts_df = data.frame(
         lon = c(bbox$xmin, bbox$xmax),
-        lat = c(bbox$ymin - (height_diff / 2), bbox$ymax + (height_diff / 2))
+        lat = c(bbox$ymin - height_diff, bbox$ymax + height_diff) + offset_y
       ),
       out_crs = terra::crs(dem_rast),
       in_crs = terra::crs(ext_poly)
