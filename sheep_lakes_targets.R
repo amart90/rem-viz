@@ -144,11 +144,11 @@ sheep_lakes_targets <- list(
           names
         ),
         label_text = "Fall River at Sheep Lakes   |   Rock Mountain National Park",
-        output_width = 10,
-        output_height = 8,
-        h_margins = 0,
-        top_margin = 0,
-        label_y = 1.5,
+        output_width = 10.5,
+        output_height = 8.5,
+        h_margins = 0.25,
+        top_margin = 0.25,
+        label_y = 1.75,
         bg_col = bg_col,
         text_col = text_col
       )
