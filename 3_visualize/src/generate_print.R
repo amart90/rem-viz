@@ -11,6 +11,8 @@ generate_print <- function(
   bg_col = "white",
   text_col = "black"
 ) {
+  stopifnot(endsWith(out_path, ".jpeg"))
+
   plot_scale <- terra::nrow(rem_rast) / terra::ncol(rem_rast)
   plot_width <- output_width - (2 * h_margins)
   plot_height <- plot_width * plot_scale
@@ -43,8 +45,10 @@ generate_print <- function(
     ) +
     ggplot2::theme_void()
 
+  temp_file <- tempfile(fileext = ".png")
+
   cowplot::ggsave2(
-    out_path,
+    temp_file,
     plot = plot_out,
     width = output_width,
     height = output_height,
@@ -52,6 +56,15 @@ generate_print <- function(
     bg = bg_col,
     dpi = 320
   )
+
+  magick::image_read(temp_file) |>
+    magick::image_convert(colorspace = "cmyk") |>
+    magick::image_write(
+      out_path,
+      quality = 100,
+      density = 320,
+      compression = "LosslessJPEG"
+    )
 
   return(out_path)
 }

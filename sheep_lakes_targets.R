@@ -60,9 +60,8 @@ sheep_lakes_targets <- list(
   tar_map(
     # fmt: skip
     values = tibble(
-      names = c("maiz", "concha", "aurora", "frida", "naturaleza", "taurus1",
-                "taurus2", "tierra", "bw", "taurus1_rev", "concha_rev",
-                "maiz_rev"),
+      names = c("maiz", "concha", "aurora", "frida", "taurus1", "taurus2",
+                "tierra", "bw", "taurus1_rev", "concha_rev", "maiz_rev"),
       pal = list(
         maiz =        c("#FFFFFF", "#9BC3C9", "#7CB0C1", "#3D72A2", "#144979",
                         "#003464"),
@@ -72,8 +71,6 @@ sheep_lakes_targets <- list(
                         "#3B141A", "#331718", "#27170B"),
         frida =       c("#FFFFFF", "#D6D8D0", "#A4ABB0", "#4C6C94", "#435E7F",
                         "#2F415F", "#232C43", "#0B1829"),
-        naturaleza =  c("#FFFFFF", "#FAF7D2", "#E1CA89", "#BE852C", "#99300C",
-                        "#80100C", "#660607", "#470607"),
         taurus1 =     c("#FFFFFF", "#FCCC64", "#D4A43C", "#EF6F43", "#C7471B",
                         "#BC3112", "#660607", "#470607"),
         taurus2 =     c("#FFFFFF", "#A19E97", "#8F887A", "#7B7466", "#635C4A",
@@ -94,7 +91,6 @@ sheep_lakes_targets <- list(
         concha = c(0, 0.0001, 0.01, 0.1, 0.12, 0.2, 0.22, 0.4, 1),
         aurora = c(0, 0.0001, 0.01, 0.1, 0.12, 0.2, 0.22, 0.4, 1),
         frida = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1) ,
-        naturaleza = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1) ,
         taurus1 = c(0, 0.0001, 0.01, 0.1, 0.12, 0.2, 0.22, 0.4, 1),
         taurus2 = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1) ,
         tierra = c(0, 0.0001, 0.01, 0.1, 0.12, 0.2, 0.22, 0.4, 1),
@@ -104,7 +100,7 @@ sheep_lakes_targets <- list(
         maiz_rev = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1)
       ),
       bg_col = "white",
-      text_col = c("white", "white", "white", "white", "white", "white",
+      text_col = c("white", "white", "white", "white", "white",
                    "white", "white", "black", "black", "black",
                    "black")
     ),
@@ -121,29 +117,32 @@ sheep_lakes_targets <- list(
       )
     ),
 
-    tar_target(
-      p3_sheeplake_print_8_10_border_png,
-      generate_print(
-        rem_plot = p3_sheeplake_rem_plot,
-        rem_rast = p2_sheeplakes_rem_rast,
-        out_path = sprintf("3_visualize/out/sheeplake_%s_11_14.png", names),
-        label_text = "Fall River at Sheep Lakes   |   Rock Mountain National Park",
-        output_width = 14,
-        output_height = 11,
-        h_margins = 2,
-        top_margin = 1.5,
-        label_y = 3,
-        bg_col = bg_col,
-        text_col = text_col
-      )
-    ),
+    # tar_target(
+    #   p3_sheeplake_print_8_10_border_png,
+    #   generate_print(
+    #     rem_plot = p3_sheeplake_rem_plot,
+    #     rem_rast = p2_sheeplakes_rem_rast,
+    #     out_path = sprintf("3_visualize/out/sheeplake_%s_11_14.png", names),
+    #     label_text = "Fall River at Sheep Lakes   |   Rock Mountain National Park",
+    #     output_width = 14,
+    #     output_height = 11,
+    #     h_margins = 2,
+    #     top_margin = 1.5,
+    #     label_y = 3,
+    #     bg_col = bg_col,
+    #     text_col = text_col
+    #   )
+    # ),
 
     tar_target(
       p3_sheeplake_print_8_10_png,
       generate_print(
         rem_plot = p3_sheeplake_rem_plot,
         rem_rast = p2_sheeplakes_rem_rast,
-        out_path = sprintf("3_visualize/out/sheeplake_%s_8_10.png", names),
+        out_path = sprintf(
+          "3_visualize/out/sheeplake_%s_8_10_cmyk.jpeg",
+          names
+        ),
         label_text = "Fall River at Sheep Lakes   |   Rock Mountain National Park",
         output_width = 10,
         output_height = 8,
