@@ -99,7 +99,7 @@ sheep_lakes_targets <- list(
         concha_rev = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1),
         maiz_rev = c(0, 0.01, 0.03, 0.06, 0.11, 0.15, 0.2, 0.3, 1)
       ),
-      bg_col = "white",
+      bg_col = purrr::map_chr(pal, \(x) tail(x, 1)),
       text_col = c("white", "white", "white", "white", "white",
                    "white", "white", "black", "black", "black",
                    "black")
