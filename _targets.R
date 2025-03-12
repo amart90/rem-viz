@@ -11,8 +11,7 @@ library(tibble)
 
 # Set target options:
 tar_option_set(
-  packages = c("curl", "terra", "flowdem", "cli", "tidyterra", "ggplot2"),
-  format = "qs"
+  packages = c("curl", "terra", "flowdem", "cli", "tidyterra", "ggplot2")
 )
 
 # Run the R scripts in the R/ folder with your custom functions:
