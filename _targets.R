@@ -16,9 +16,12 @@ tar_option_set(
 
 # Run the R scripts in the R/ folder with your custom functions:
 tar_source(c("1_fetch/src", "2_process/src", "3_visualize/src"))
-source("1_fetch.R")
-source("fall_river_targets.R")
-source("sheep_lakes_targets.R")
+tar_source(c(
+  "1_fetch.R",
+  "fall_river_targets.R",
+  "sheep_lakes_targets.R",
+  "mill_creek_targets.R"
+))
 
 # Replace the target list below with your own:
-c(p1_fetch_targets, sheep_lakes_targets)
+c(p1_fetch_targets, millcreek_targets)
