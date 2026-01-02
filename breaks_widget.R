@@ -360,7 +360,43 @@ ui <- fluidPage(
   )
 )
 
+
 server <- function(input, output, session) {
+  # ------------------------------------------------------------
+  # Source-of-truth state
+  # ------------------------------------------------------------
+  rv <- reactiveValues(
+    stops = seq(0.1, 0.9, length.out = 9), # 9 internal stops -> 10 classes
+    colors = viridisLite::viridis(10) # initial colors; will persist
+  )
+
+  # Precision & spacing
+  min_gap <- 1e-4 # 0.0001 (4 decimals)
+  round4 <- function(x) round(x, 4)
+
+  # Sanitization (internal stops are strictly within (0,1), increasing, min_gap apart)
+  sanitize_stops <- function(x, notify = FALSE) {
+    x <- as.numeric(x)
+    x <- pmax(min_gap, pmin(1 - min_gap, x)) # keep inside (0,1)
+    x <- sort(x)
+    # enforce min_gap between neighbors
+    for (i in 2:length(x)) {
+      if (x[i] <= x[i - 1] + min_gap) x[i] <- x[i - 1] + min_gap
+    }
+    x <- pmin(1 - min_gap, x)
+    if (notify) {
+      showNotification(
+        "Stops adjusted to maintain minimum spacing.",
+        type = "message",
+        duration = 3
+      )
+    }
+    x
+  }
+
+  # ------------------------------------------------------------
+  # Raster + values + preview (unchanged behavior)
+  # ------------------------------------------------------------
   r <- reactive({
     req(input$ras)
     terra::rast(input$ras$datapath)
@@ -388,192 +424,204 @@ server <- function(input, output, session) {
     )
   })
 
-  # --- NEW: helper to enforce ordering and minimum spacing ---
-  min_gap <- 1e-4 # 0.0001 => 4 decimal places
-  sanitize_stops <- function(x, show_note = TRUE) {
-    x <- pmax(0, pmin(1, as.numeric(x)))
-    x <- sort(x)
-    changed <- FALSE
-    if (any(diff(x) < min_gap)) {
-      # Nudge overlapping stops forward to enforce minimum spacing
-      for (i in seq_along(x)[-1]) {
-        if (x[i] <= x[i - 1] + min_gap) {
-          x[i] <- min(1 - min_gap * (length(x) - i), x[i - 1] + min_gap)
-          changed <- TRUE
-        }
-      }
-      # If end overflowed, nudge earlier ones backward
-      for (i in rev(seq_along(x)[-length(x)])) {
-        if (x[i + 1] <= x[i] + min_gap) {
-          x[i] <- max(0 + min_gap * (i - 1), x[i + 1] - min_gap)
-          changed <- TRUE
-        }
-      }
-      if (isTRUE(changed) && isTRUE(show_note)) {
-        showNotification(
-          paste(
-            "Some stops were overlapping or too close.",
-            "They were nudged to enforce a minimum spacing of",
-            min_gap
-          ),
-          type = "message",
-          duration = 4
-        )
-      }
-    }
-    x
-  }
+  # ------------------------------------------------------------
+  # Slider ↔ stops sync
+  # ------------------------------------------------------------
+  # Initialize slider with rv$stops
+  observeEvent(
+    rv$stops,
+    {
+      updateNoUiSliderInput(session, "stops_norm", value = rv$stops)
+    },
+    ignoreInit = FALSE
+  )
 
-  colors_vec <- reactive({
-    n_classes <- length(stops_norm()) + 1
-    cols <- sapply(seq_len(n_classes), function(i) input[[paste0("col_", i)]])
-    # Fallback if any color is missing on first render
-    if (any(is.null(cols)) || length(cols) != n_classes) {
-      base <- viridisLite::viridis(n_classes)
-      if (isTRUE(input$reverse)) {
-        base <- rev(base)
-      }
-      return(base)
-    }
-    cols
-  })
+  # When user drags slider → update stops
+  observeEvent(
+    input$stops_norm,
+    {
+      s_new <- sanitize_stops(input$stops_norm, notify = FALSE)
+      if (!identical(round4(s_new), round4(rv$stops))) rv$stops <- s_new
+    },
+    ignoreInit = FALSE
+  )
 
-  # --- numeric inputs to type exact values ---
+  # ------------------------------------------------------------
+  # Type-to-fine-tune inputs (one numericInput per stop)
+  # ------------------------------------------------------------
   output$stop_inputs <- renderUI({
-    req(input$stops_norm)
-    stops <- sort(as.numeric(input$stops_norm))
-    tagList(lapply(seq_along(stops), function(i) {
+    s <- rv$stops
+    tagList(lapply(seq_along(s), function(i) {
       numericInput(
         inputId = paste0("stop_", i),
         label = paste("Stop", i),
-        value = round(stops[i], 4),
-        min = 0,
-        max = 1,
+        value = round4(s[i]),
+        min = 0 + min_gap,
+        max = 1 - min_gap,
         step = 0.0001
       )
     }))
   })
 
-  # Collect typed values into a vector (reactive)
   typed_stops <- reactive({
-    req(input$stops_norm)
-    n <- length(input$stops_norm)
-    sapply(seq_len(n), function(i) input[[paste0("stop_", i)]])
+    # Gather typed values in current order
+    sapply(seq_along(rv$stops), function(i) input[[paste0("stop_", i)]])
   })
 
-  # Update slider from typed inputs (debounced to avoid jitter)
-  debounced_typed <- debounce(typed_stops, millis = 200)
   observeEvent(
-    debounced_typed(),
+    debounce(typed_stops, 200)(),
     {
-      s <- sanitize_stops(debounced_typed(), show_note = TRUE)
-      # Only update if values actually changed to avoid loops
-      if (
-        !identical(round(s, 4), round(sort(as.numeric(input$stops_norm)), 4))
-      ) {
-        updateNoUiSliderInput(session, "stops_norm", value = s)
+      t <- typed_stops()
+      if (length(t) && !any(is.na(t))) {
+        s_new <- sanitize_stops(t, notify = FALSE)
+        if (!identical(round4(s_new), round4(rv$stops))) rv$stops <- s_new
       }
     },
     ignoreInit = TRUE
   )
 
-  # Update numeric inputs when slider changes (keep 4-dec precision)
+  # Keep numeric inputs in sync after slider changes
   observeEvent(
-    input$stops_norm,
+    rv$stops,
     {
-      s <- sort(as.numeric(input$stops_norm))
-      s <- sanitize_stops(s, show_note = FALSE)
+      s <- rv$stops
       for (i in seq_along(s)) {
-        # Only update if the displayed value differs; avoids oscillation
-        if (!isTRUE(all.equal(input[[paste0("stop_", i)]], round(s[i], 4)))) {
-          updateNumericInput(
-            session,
-            paste0("stop_", i),
-            value = round(s[i], 4)
-          )
+        if (!isTRUE(all.equal(input[[paste0("stop_", i)]], round4(s[i])))) {
+          updateNumericInput(session, paste0("stop_", i), value = round4(s[i]))
         }
       }
     },
-    ignoreInit = FALSE
+    ignoreInit = TRUE
   )
 
-  # --- colors UI: unchanged in spirit; keeps per-class hex, reversed if needed ---
+  # ------------------------------------------------------------
+  # Colors UI (DO NOT reinitialize—always use rv$colors)
+  # ------------------------------------------------------------
+  # If reverse is toggled, just reverse current colors
+  observeEvent(
+    input$reverse,
+    {
+      rv$colors <- rev(rv$colors)
+    },
+    ignoreInit = TRUE
+  )
+
+  # Optional one-shot "reset to viridis" action (if you want a button; see UI tweak below)
+  observeEvent(
+    input$reset_viridis,
+    {
+      k <- length(rv$stops) + 1
+      pal <- viridisLite::viridis(k)
+      rv$colors <- pal
+    },
+    ignoreInit = TRUE
+  )
+
+  # Render color pickers (values come from rv$colors)
   output$colors_ui <- renderUI({
-    req(input$stops_norm)
-    k <- length(input$stops_norm) + 1
-    base <- viridisLite::viridis(k)
-    if (isTRUE(input$reverse)) {
-      base <- rev(base)
+    k <- length(rv$stops) + 1
+    # ensure colors length matches number of classes
+    if (length(rv$colors) != k) {
+      if (length(rv$colors) < k) {
+        rv$colors <- c(rv$colors, rep("#66CCFF", k - length(rv$colors)))
+      } else {
+        rv$colors <- rv$colors[seq_len(k)]
+      }
     }
-    tagList(
-      h5("Class colors (hex; left → right)"),
-      lapply(seq_len(k), function(i) {
-        colourpicker::colourInput(
-          inputId = paste0("col_", i),
-          label = paste("Class", i),
-          value = if (isTRUE(input$init_viridis)) base[i] else "#66CCFF",
-          allowTransparent = TRUE,
-          showColour = "both"
-        )
-      })
-    )
+    tagList(lapply(seq_len(k), function(i) {
+      colourpicker::colourInput(
+        inputId = paste0("col_", i),
+        label = paste("Class", i),
+        value = rv$colors[i],
+        allowTransparent = TRUE,
+        showColour = "both"
+      )
+    }))
   })
 
-  # --- normalized stops (sanitized) ---
-  stops_norm <- reactive({
-    sanitize_stops(input$stops_norm, show_note = FALSE)
+  # Capture color changes into rv$colors (persistent)
+  observe({
+    k <- length(rv$stops) + 1
+    for (i in seq_len(k)) {
+      col_i <- input[[paste0("col_", i)]]
+      if (!is.null(col_i) && !identical(col_i, rv$colors[i])) {
+        rv$colors[i] <- col_i
+      }
+    }
   })
 
-  # Map normalized → absolute
+  # ------------------------------------------------------------
+  # Add / Remove stops (and preserve colors accordingly)
+  # ------------------------------------------------------------
+  observeEvent(input$add_stop, {
+    s <- rv$stops
+    edges <- c(0, s, 1)
+    widths <- diff(edges)
+    idx <- which.max(widths) # interval to split
+    new_s <- edges[idx] + widths[idx] / 2 # midpoint of widest interval
+    s_new <- sanitize_stops(c(s, new_s), notify = FALSE)
+
+    # Compute where the new stop ended up; find the interval index after sorting
+    edges_new <- c(0, s_new, 1)
+    # Find insertion interval by nearest position to new_s in edges_new
+    insert_after <- which.min(abs(edges_new - new_s)) - 1
+    insert_after <- max(1, min(insert_after, length(rv$colors))) # safety
+
+    if (!identical(round4(s_new), round4(s))) {
+      rv$stops <- s_new
+      # Insert a color in the split interval (duplicate existing color so your scheme persists)
+      rv$colors <- append(
+        rv$colors,
+        rv$colors[insert_after],
+        after = insert_after
+      )
+    } else {
+      showNotification(
+        "No room to add a stop (min spacing in effect). Try moving existing stops.",
+        type = "warning",
+        duration = 4
+      )
+    }
+  })
+
+  observeEvent(input$remove_stop, {
+    s <- rv$stops
+    if (length(s) <= 1) {
+      showNotification(
+        "Cannot remove: at least one stop is required.",
+        type = "warning",
+        duration = 3
+      )
+      return()
+    }
+    rv$stops <- s[-length(s)]
+    rv$colors <- rv$colors[-length(rv$colors)]
+  })
+
+  # ------------------------------------------------------------
+  # Breaks and palette (safe; skip if invalid)
+  # ------------------------------------------------------------
   breaks_abs <- reactive({
     v <- vals()
     req(v)
     rng <- range(v, na.rm = TRUE)
-    c(rng[1], rng[1] + stops_norm() * diff(rng), rng[2])
+    c(rng[1], rng[1] + rv$stops * diff(rng), rng[2])
   })
-
-  # Colors per class
-  colors_vec <- reactive({
-    k <- length(stops_norm()) + 1
-    sapply(seq_len(k), function(i) input[[paste0("col_", i)]])
-  })
-
-  # Palette function with guard: strictly increasing breaks
 
   pal_fn <- reactive({
-    # Pre-check: we must have values, colors, and valid breaks
     v <- vals()
     req(v)
     b <- breaks_abs()
-    # Strictly increasing breaks? (no zero-width bins)
     if (!isTRUE(all(diff(b) > 0))) {
-      showNotification(
-        "Breaks are not strictly increasing. Adjust stops (or they were auto-nudged).",
-        type = "warning",
-        duration = 5
-      )
-      return(NULL) # signal to renderer to skip for now
+      return(NULL)
     }
-
-    # Colors vector must match number of bins
     k <- length(b) - 1
-    cols <- colors_vec()
-    if (length(cols) != k || any(is.na(cols))) {
-      showNotification(
-        sprintf(
-          "Color count (%d) must equal number of classes (%d).",
-          length(cols),
-          k
-        ),
-        type = "warning",
-        duration = 5
-      )
+    if (length(rv$colors) != k) {
       return(NULL)
     }
 
-    # Build palette safely
     leaflet::colorBin(
-      palette = cols,
+      palette = rv$colors,
       domain = range(v, na.rm = TRUE),
       bins = b,
       right = FALSE,
@@ -581,21 +629,20 @@ server <- function(input, output, session) {
     )
   })
 
-  # Base map
+  # ------------------------------------------------------------
+  # Map rendering (robust)
+  # ------------------------------------------------------------
   output$map <- renderLeaflet({
     leaflet() %>% addTiles()
   })
-
-  # Redraw map on change
 
   observe({
     req(r_preview())
     pal <- pal_fn()
     if (is.null(pal)) {
       return()
-    } # nothing to draw yet
+    }
 
-    # Wrap rendering in tryCatch for extra safety
     tryCatch(
       {
         leafletProxy("map") %>%
@@ -625,61 +672,20 @@ server <- function(input, output, session) {
     )
   })
 
-  # Histogram with break lines (unchanged)
-  output$hist <- renderPlotly({
-    v <- vals()
-    req(v)
-    b <- breaks_abs()
-    p <- plot_ly(
-      x = v,
-      type = "histogram",
-      nbinsx = 60,
-      marker = list(color = "rgba(60,60,60,0.6)")
-    )
-    for (br in b) {
-      p <- p %>%
-        add_lines(
-          x = c(br, br),
-          y = c(0, 1),
-          line = list(color = "red", dash = "dot", width = 1),
-          inherit = FALSE,
-          showlegend = FALSE
-        )
-    }
-    p
-  })
-
-  # Add/remove stops (respect min_gap)
-  observeEvent(input$add_stop, {
-    s <- c(0, stops_norm(), 1)
-    widths <- diff(s)
-    idx <- which.max(widths)
-    new_stop <- s[idx] + widths[idx] / 2
-    s_new <- sanitize_stops(c(stops_norm(), new_stop), show_note = TRUE)
-    updateNoUiSliderInput(session, "stops_norm", value = s_new)
-  })
-  observeEvent(input$remove_stop, {
-    if (length(stops_norm()) > 1) {
-      updateNoUiSliderInput(
-        session,
-        "stops_norm",
-        value = stops_norm()[-length(stops_norm())]
-      )
-    }
-  })
-
-  # Export normalized stops + colors
+  # ------------------------------------------------------------
+  # Outputs & export (unchanged)
+  # ------------------------------------------------------------
   output$stops_out <- renderPrint({
-    stops_norm()
+    rv$stops
   })
   output$colors_out <- renderPrint({
-    colors_vec()
+    rv$colors
   })
   output$export_json <- downloadHandler(
     filename = function() "normalized_stops_colors.json",
     content = function(file) {
       jsonlite::write_json(
-        list(stops_norm = stops_norm(), colors = colors_vec()),
+        list(stops_norm = rv$stops, colors = rv$colors),
         path = file,
         pretty = TRUE,
         auto_unbox = TRUE
@@ -687,6 +693,7 @@ server <- function(input, output, session) {
     }
   )
 }
+
 
 shinyApp(ui, server)
 
