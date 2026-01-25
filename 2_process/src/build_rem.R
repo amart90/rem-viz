@@ -59,8 +59,10 @@ build_rem <- function(
 #' @return an object, the same class as df with `n`, evenly spaced rows
 #'
 sample_regular <- function(df, n) {
-  n_row <- nrow(df)
-  idx <- floor(seq(from = 1, to = n_row, length.out = n))
+  if (nrow(df) >= n) {
+    return(df)
+  }
+  idx <- floor(seq(from = 1, to = nrow(df), length.out = n))
   df[idx, ]
 }
 
@@ -82,4 +84,83 @@ max_dist_from_edge <- function(pts, r) {
     as.numeric() |>
     # Round up
     ceiling()
+}
+
+#' Build relative elevation model
+#'
+#' @param dem_tif chr; path to dem
+#' @param aoi_ext named num vector; must have neames: xmin, xmax, ymin, ymax
+#'   with coresponding lat/long coordinates
+#' @param flowlines_gpkg chr; path to flowlines geopackage
+#' @param n_stream_pts num(1); maximum number of points from flowlines to sample
+#'
+#' @returns a spatraster
+#'
+build_rem_3dhp <- function(
+  dem_tif,
+  aoi_ext,
+  flowlines_gpkg,
+  n_stream_pts = 800,
+  max_points = 800,
+  out_filename = NULL
+) {
+  # Build extent polygon from c(xmin, ymax, ...)
+  if (is.null(aoi_ext)) {
+    dem <- terra::rast(dem_tif)
+
+    aoi_vect <- terra::ext(dem) |>
+      terra::as.polygons(crs = terra::crs(dem))
+  } else {
+    # Double check x/y min/max are in the right order
+    aoi_ext_ <- aoi_ext
+    aoi_ext_[["xmin"]] = min(aoi_ext[c("xmin", "xmax")])
+    aoi_ext_[["xmax"]] = max(aoi_ext[c("xmin", "xmax")])
+    aoi_ext_[["ymin"]] = min(aoi_ext[c("ymin", "ymax")])
+    aoi_ext_[["ymax"]] = max(aoi_ext[c("ymin", "ymax")])
+
+    aoi_sf <- sf::st_bbox(aoi_ext_) |>
+      sf::st_as_sfc() |>
+      sf::`st_crs<-`("EPSG:4326")
+
+    dem <- terra::rast(dem_tif)
+
+    aoi_vect <- aoi_sf |>
+      sf::st_transform(terra::crs(dem)) |>
+      terra::vect()
+  }
+
+  dem_aoi <- terra::crop(dem, aoi_vect) |>
+    setNames("dem")
+
+  flowlines_vect <- terra::vect(
+    flowlines_gpkg,
+    layer = "flowlines",
+    query = "SELECT * FROM flowlines WHERE featuretypelabel = 'Channel Line'",
+    filter = aoi_vect
+  )
+
+  dem_aoi$stream <- terra::rasterize(flowlines_vect, dem_aoi)
+
+  stream_pts <- terra::as.points(dem_aoi$stream)
+  rlang::inform(sprintf("nrow(stream_pts) = %s", nrow(stream_pts)))
+
+  stream_pts <- stream_pts |>
+    sample_regular(n_stream_pts) |>
+    terra::extract(dem_aoi$dem, y = _, bind = T)
+
+  dem_aoi$idw <- terra::interpIDW(
+    dem_aoi$dem,
+    stream_pts,
+    maxPoints = max_points,
+    field = "dem",
+    radius = max_dist_from_edge(stream_pts, dem_aoi$dem)
+  )
+  dem_aoi$rem <- dem_aoi$dem - dem_aoi$idw
+
+  if (is.null(out_filename)) {
+    return(dem_aoi)
+  } else {
+    terra::writeRaster(dem_aoi$rem, out_filename, overwrite = TRUE)
+    return(out_filename)
+  }
 }
