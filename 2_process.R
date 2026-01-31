@@ -34,6 +34,25 @@ p2_targets <- list(
       max_points = 2200
     ),
     format = "file"
+  ),
+
+  # Bowen Gulch -> Colorado River (could rotate 90 degrees)
+  tar_target(
+    p2_bowen_gulch_rem_tif,
+    build_rem_3dhp(
+      dem_tif = p1_dem_tif_x42y447,
+      aoi_ext = c(
+        xmin = -105.867974,
+        ymin = 40.315897,
+        xmax = -105.851539,
+        ymax = 40.331207
+      ),
+      flowlines_gpkg = p1_3dhp_gpkg,
+      out_filename = "2_process/out/bowen_gulch_rem.tif",
+      n_stream_pts = 4400,
+      max_points = 2200
+    ),
+    format = "file"
   )
 
   # Full Scenes ----
