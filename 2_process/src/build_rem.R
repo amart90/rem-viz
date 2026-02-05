@@ -102,7 +102,9 @@ build_rem_3dhp <- function(
   flowlines_gpkg,
   n_stream_pts = 800,
   max_points = 800,
-  out_filename = NULL
+  out_filename = NULL,
+  flowline_gnisid = NULL,
+  flowline_id3dhp = NULL
 ) {
   # Build extent polygon from c(xmin, ymax, ...)
   if (is.null(aoi_ext)) {
@@ -132,10 +134,26 @@ build_rem_3dhp <- function(
   dem_aoi <- terra::crop(dem, aoi_vect) |>
     setNames("dem")
 
+  query <- "SELECT * FROM flowlines WHERE"
+  if (!is.null(flowline_gnisid) & !is.null(flowline_id3dhp)) {
+    query <- paste(
+      query,
+      sprintf("gnisid IN (%s)", flowline_gnisid),
+      "OR",
+      sprintf("id3dhp IN (%s)", flowline_id3dhp)
+    )
+  } else if (!is.null(flowline_gnisid)) {
+    query <- paste(query, sprintf("gnisid IN (%s)", flowline_gnisid))
+  } else if (!is.null(flowline_id3dhp)) {
+    query <- paste(query, sprintf("id3dhp IN (%s)", flowline_id3dhp))
+  } else {
+    query <- paste(query, "onsurface = 1")
+  }
+
   flowlines_vect <- terra::vect(
     flowlines_gpkg,
     layer = "flowlines",
-    query = "SELECT * FROM flowlines WHERE featuretypelabel = 'Channel Line'",
+    query = query,
     filter = aoi_vect
   )
 

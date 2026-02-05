@@ -17,7 +17,7 @@ p2_targets <- list(
   #   format = "file"
   # ),
 
-  # South Kawuneeche Valley
+  # South Kawuneeche Valley #-1.5 to 3
   tar_target(
     p2_s_kawuneeche_rem_tif,
     build_rem_3dhp(
@@ -29,14 +29,15 @@ p2_targets <- list(
         ymax = 40.286956
       ),
       flowlines_gpkg = p1_3dhp_gpkg,
-      out_filename = "2_process/out/s_kawuneeche_rem_4400_2200.tif",
+      out_filename = "2_process/out/s_kawuneeche_rem_4400_2200_refine.tif",
       n_stream_pts = 4400,
-      max_points = 2200
+      max_points = 2200,
+      flowline_gnisid = "45730"
     ),
     format = "file"
   ),
 
-  # Bowen Gulch -> Colorado River (could rotate 90 degrees)
+  # Bowen Gulch -> Colorado River (could rotate 90 degrees) #-1.5 to 3
   tar_target(
     p2_bowen_gulch_rem_tif,
     build_rem_3dhp(
@@ -48,9 +49,11 @@ p2_targets <- list(
         ymax = 40.331207
       ),
       flowlines_gpkg = p1_3dhp_gpkg,
-      out_filename = "2_process/out/bowen_gulch_rem.tif",
+      out_filename = "2_process/out/bowen_gulch_rem_refine.tif",
       n_stream_pts = 4400,
-      max_points = 2200
+      max_points = 2200,
+      flowline_gnisid = "45730",
+      flowline_id3dhp = "'1GZZW', '23KQ7', '2I49H','3KU6C', '4NKKL', '53PUZ', '56XE5', '58J2Z', '7H8DW', '8AP94', '8M1OV', 'FDB2R', 'FDB2W', 'G6I4I', '2TFIW', '334E0', '4KD38', 'F3K6S', 'FI5V4'"
     ),
     format = "file"
   )
