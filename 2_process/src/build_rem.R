@@ -107,9 +107,14 @@ build_rem_3dhp <- function(
   flowline_id3dhp = NULL
 ) {
   # Build extent polygon from c(xmin, ymax, ...)
-  if (is.null(aoi_ext)) {
+  if (length(dem_tif) > 1) {
+    dem <- terra::sprc(dem_tif) |>
+      terra::merge()
+  } else {
     dem <- terra::rast(dem_tif)
+  }
 
+  if (is.null(aoi_ext)) {
     aoi_vect <- terra::ext(dem) |>
       terra::as.polygons(crs = terra::crs(dem))
   } else {
@@ -123,8 +128,6 @@ build_rem_3dhp <- function(
     aoi_sf <- sf::st_bbox(aoi_ext_) |>
       sf::st_as_sfc() |>
       sf::`st_crs<-`("EPSG:4326")
-
-    dem <- terra::rast(dem_tif)
 
     aoi_vect <- aoi_sf |>
       sf::st_transform(terra::crs(dem)) |>

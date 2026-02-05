@@ -56,9 +56,76 @@ p2_targets <- list(
       flowline_id3dhp = "'1GZZW', '23KQ7', '2I49H','3KU6C', '4NKKL', '53PUZ', '56XE5', '58J2Z', '7H8DW', '8AP94', '8M1OV', 'FDB2R', 'FDB2W', 'G6I4I', '2TFIW', '334E0', '4KD38', 'F3K6S', 'FI5V4'"
     ),
     format = "file"
-  )
+  ),
+
+  # Moraine Park # -2 to 1
+  tar_target(
+    p2_moraine_park_rem_tif,
+    build_rem_3dhp(
+      dem_tif = c(p1_dem_tif_x44y447, p1_dem_tif_x45y447),
+      aoi_ext = c(
+        xmin = -105.6378449,
+        ymin = 40.3455166,
+        xmax = -105.5762954,
+        ymax = 40.3612232
+      ),
+      flowlines_gpkg = p1_3dhp_gpkg,
+      out_filename = "2_process/out/moraine_park_rem.tif",
+      n_stream_pts = 4400,
+      max_points = 2200,
+    ),
+    format = "file"
+  ),
+
+  # Beaver Meadows # Not that good
+  # tar_target(
+  #   p2_beaver_meadows_rem_tif,
+  #   build_rem_3dhp(
+  #     dem_tif = c(p1_dem_tif_x44y447, p1_dem_tif_x45y447),
+  #     aoi_ext = c(
+  #       xmin = -105.6208743,
+  #       ymin = 40.3619799,
+  #       xmax = -105.5767027,
+  #       ymax = 40.3822704
+  #     ),
+  #     flowlines_gpkg = p1_3dhp_gpkg,
+  #     out_filename = "2_process/out/beaver_meadows_rem.tif",
+  #     n_stream_pts = 4400,
+  #     max_points = 2200,
+  #   ),
+  #   format = "file"
+  # )
+
+  tar_target(
+    p2_moraine_park_rem_tif,
+    build_rem_3dhp(
+      dem_tif = c(p1_dem_tif_x44y447, p1_dem_tif_x45y447),
+      aoi_ext = c(
+        xmin = -105.6378449,
+        ymin = 40.3455166,
+        xmax = -105.5762954,
+        ymax = 40.3612232
+      ),
+      flowlines_gpkg = p1_3dhp_gpkg,
+      out_filename = "2_process/out/moraine_park_rem.tif",
+      n_stream_pts = 4400,
+      max_points = 2200,
+    ),
+    format = "file"
+  ),
 
   # Full Scenes ----
+  # tar_target(
+  #   p2_full_moraine_park_rem_tif,
+  #   build_rem_3dhp(
+  #     dem_tif = c(p1_dem_tif_x44y447, p1_dem_tif_x45y447),
+  #     aoi_ext = NULL,
+  #     flowlines_gpkg = p1_3dhp_gpkg,
+  #     n_stream_pts = 1800,
+  #     out_filename = "2_process/out/maraine_park_x44-5y447_rem.tif"
+  #   ),
+  #   format = "file"
+  # )
   # tar_target(
   #   p2_grand_lake_n_rem_tif,
   #   build_rem_3dhp(
