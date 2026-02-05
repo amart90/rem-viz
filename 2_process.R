@@ -77,6 +77,25 @@ p2_targets <- list(
     format = "file"
   ),
 
+  # Glacier creek # Not that good
+  # tar_target(
+  #   p2_glacier_creek_rem_tif,
+  #   build_rem_3dhp(
+  #     dem_tif = p1_dem_tif_x44y447,
+  #     aoi_ext = c(
+  #       xmin = -105.6464668,
+  #       ymin = 40.2944389,
+  #       xmax = -105.5953917,
+  #       ymax = 40.3347404
+  #     ),
+  #     flowlines_gpkg = p1_3dhp_gpkg,
+  #     out_filename = "2_process/out/glacier_creek_rem.tif",
+  #     n_stream_pts = 4400,
+  #     max_points = 2200,
+  #   ),
+  #   format = "file"
+  # )
+
   # Beaver Meadows # Not that good
   # tar_target(
   #   p2_beaver_meadows_rem_tif,
