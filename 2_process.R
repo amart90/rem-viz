@@ -96,24 +96,6 @@ p2_targets <- list(
   #   format = "file"
   # )
 
-  tar_target(
-    p2_moraine_park_rem_tif,
-    build_rem_3dhp(
-      dem_tif = c(p1_dem_tif_x44y447, p1_dem_tif_x45y447),
-      aoi_ext = c(
-        xmin = -105.6378449,
-        ymin = 40.3455166,
-        xmax = -105.5762954,
-        ymax = 40.3612232
-      ),
-      flowlines_gpkg = p1_3dhp_gpkg,
-      out_filename = "2_process/out/moraine_park_rem.tif",
-      n_stream_pts = 4400,
-      max_points = 2200,
-    ),
-    format = "file"
-  ),
-
   # Full Scenes ----
   # tar_target(
   #   p2_full_moraine_park_rem_tif,

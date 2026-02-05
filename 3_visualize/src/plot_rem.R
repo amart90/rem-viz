@@ -53,7 +53,7 @@ build_rem_plot <- function(
     rem <- terra::as.data.frame(rem, xy = TRUE)
     plot_function <- ggplot2::geom_tile(
       data = rem,
-      aes(x = x, y = y, fill = rem)
+      ggplot2::aes(x = x, y = y, fill = rem)
     )
   }
 
