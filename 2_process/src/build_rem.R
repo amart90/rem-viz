@@ -104,7 +104,8 @@ build_rem_3dhp <- function(
   max_points = 800,
   out_filename = NULL,
   flowline_gnisid = NULL,
-  flowline_id3dhp = NULL
+  flowline_id3dhp = NULL,
+  query_text = NULL
 ) {
   # Build extent polygon from c(xmin, ymax, ...)
   if (length(dem_tif) > 1) {
@@ -138,7 +139,9 @@ build_rem_3dhp <- function(
     setNames("dem")
 
   query <- "SELECT * FROM flowlines WHERE"
-  if (!is.null(flowline_gnisid) & !is.null(flowline_id3dhp)) {
+  if (!is.null(query_text)) {
+    query <- paste(query, query_text)
+  } else if (!is.null(flowline_gnisid) & !is.null(flowline_id3dhp)) {
     query <- paste(
       query,
       sprintf("gnisid IN (%s)", flowline_gnisid),
