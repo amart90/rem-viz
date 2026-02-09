@@ -95,15 +95,20 @@ crop_flowlines <- function(
   return(out)
 }
 
-resample_by_factor <- function(dem_rast, resample_factor = 2) {
+resample_by_factor <- function(dem_rast, resample_factor = 2, filename = NULL) {
   template_rast <- rast(
-    #nrow = terra::nrow(dem_rast) * 2,
-    #ncol = terra::ncol(dem_rast) * 2,
     crs = terra::crs(dem_rast),
     extent = terra::ext(dem_rast),
     resolution = terra::res(dem_rast) / resample_factor,
     vals = NA
   )
-  terra::resample(dem_rast, template_rast) |>
+  out <- terra::resample(dem_rast, template_rast) |>
     setNames("dem")
+
+  if (is.null(filename)) {
+    return(out)
+  } else {
+    terra::writeRaster(out, filename, overwrite = TRUE)
+    return(filename)
+  }
 }

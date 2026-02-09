@@ -1,23 +1,40 @@
 p2_targets <- list(
-  # Individuals ----
-  # onahu_creek (not that great)
-  # tar_target(
-  #   p2_onahu_creek_rem_tif,
-  #   build_rem_3dhp(
-  #     dem_tif = p1_dem_tif_x42y447,
-  #     aoi_ext = c(
-  #       xmin = -105.8520462,
-  #       ymin = 40.2933578,
-  #       xmax = -105.8440229,
-  #       ymax = 40.3187568
-  #     ),
-  #     flowlines_gpkg = p1_3dhp_gpkg,
-  #     out_filename = "2_process/out/onahu_creek_rem.tif"
-  #   ),
-  #   format = "file"
-  # ),
+  # Preprocessing ----
+  tar_target(
+    p2_sheeplakes_dem_resample_tif,
+    resample_by_factor(
+      dem_rast = crop_tif(
+        dem_tif = p1_dem_tif_x44y448,
+        lat_lon_df = data.frame(
+          lon = c(-105.604633, -105.625647),
+          lat = c(40.403237, 40.397307)
+        ),
+        scale = 10 / 8,
+        offset_frac = 0.1
+      ),
+      resample_factor = 2,
+      filename = "2_process/out/sheplakes_resample.tif"
+    ),
+    format = "file"
+  ),
 
-  # South Kawuneeche Valley #-1.5 to 3
+  # Individual REMs ----
+  ## Sheep Lakes ----
+  tar_target(
+    p2_sheeplakes_rem_tif,
+    build_rem_3dhp(
+      dem_tif = p2_sheeplakes_dem_resample_tif,
+      aoi_ext = NULL,
+      flowlines_gpkg = p1_3dhp_gpkg,
+      out_filename = "2_process/out/sheeplakes_rem.tif",
+      n_stream_pts = 4400,
+      max_points = 2200,
+      flowline_gnisid = "177536",
+    ),
+    format = "file"
+  ),
+
+  ## South Kawuneeche Valley ----
   tar_target(
     p2_s_kawuneeche_rem_tif,
     build_rem_3dhp(
@@ -29,7 +46,7 @@ p2_targets <- list(
         ymax = 40.286956
       ),
       flowlines_gpkg = p1_3dhp_gpkg,
-      out_filename = "2_process/out/s_kawuneeche_rem_4400_2200_refine.tif",
+      out_filename = "2_process/out/s_kawuneeche_rem.tif",
       n_stream_pts = 4400,
       max_points = 2200,
       flowline_gnisid = "45730"
@@ -37,7 +54,7 @@ p2_targets <- list(
     format = "file"
   ),
 
-  # Bowen Gulch -> Colorado River (could rotate 90 degrees) #-1.5 to 3
+  ## Bowen Gulch ----
   tar_target(
     p2_bowen_gulch_rem_tif,
     build_rem_3dhp(
@@ -49,7 +66,7 @@ p2_targets <- list(
         ymax = 40.331207
       ),
       flowlines_gpkg = p1_3dhp_gpkg,
-      out_filename = "2_process/out/bowen_gulch_rem_refine.tif",
+      out_filename = "2_process/out/bowen_gulch_rem.tif",
       n_stream_pts = 4400,
       max_points = 2200,
       flowline_gnisid = "45730",
@@ -58,7 +75,7 @@ p2_targets <- list(
     format = "file"
   ),
 
-  # Moraine Park # -2 to 1
+  ## Moraine Park ----
   tar_target(
     p2_moraine_park_rem_tif,
     build_rem_3dhp(
@@ -77,90 +94,4 @@ p2_targets <- list(
     ),
     format = "file"
   )
-
-  # Glacier creek # Not that good
-  # tar_target(
-  #   p2_glacier_creek_rem_tif,
-  #   build_rem_3dhp(
-  #     dem_tif = p1_dem_tif_x44y447,
-  #     aoi_ext = c(
-  #       xmin = -105.6464668,
-  #       ymin = 40.2944389,
-  #       xmax = -105.5953917,
-  #       ymax = 40.3347404
-  #     ),
-  #     flowlines_gpkg = p1_3dhp_gpkg,
-  #     out_filename = "2_process/out/glacier_creek_rem.tif",
-  #     n_stream_pts = 4400,
-  #     max_points = 2200,
-  #   ),
-  #   format = "file"
-  # )
-
-  # Beaver Meadows # Not that good
-  # tar_target(
-  #   p2_beaver_meadows_rem_tif,
-  #   build_rem_3dhp(
-  #     dem_tif = c(p1_dem_tif_x44y447, p1_dem_tif_x45y447),
-  #     aoi_ext = c(
-  #       xmin = -105.6208743,
-  #       ymin = 40.3619799,
-  #       xmax = -105.5767027,
-  #       ymax = 40.3822704
-  #     ),
-  #     flowlines_gpkg = p1_3dhp_gpkg,
-  #     out_filename = "2_process/out/beaver_meadows_rem.tif",
-  #     n_stream_pts = 4400,
-  #     max_points = 2200,
-  #   ),
-  #   format = "file"
-  # )
-
-  # Full Scenes ----
-  # tar_target(
-  #   p2_full_moraine_park_rem_tif,
-  #   build_rem_3dhp(
-  #     dem_tif = c(p1_dem_tif_x44y447, p1_dem_tif_x45y447),
-  #     aoi_ext = NULL,
-  #     flowlines_gpkg = p1_3dhp_gpkg,
-  #     n_stream_pts = 1800,
-  #     out_filename = "2_process/out/maraine_park_x44-5y447_rem.tif"
-  #   ),
-  #   format = "file"
-  # )
-  # tar_target(
-  #   p2_grand_lake_n_rem_tif,
-  #   build_rem_3dhp(
-  #     dem_tif = p1_dem_tif_x42y447,
-  #     aoi_ext = NULL,
-  #     flowlines_gpkg = p1_3dhp_gpkg,
-  #     n_stream_pts = 1800,
-  #     out_filename = "2_process/out/grand_lake_x42y477_rem.tif"
-  #   ),
-  #   format = "file"
-  # ),
-  #
-  # tar_target(
-  #   p2_grand_lake_w_rem_tif,
-  #   build_rem_3dhp(
-  #     dem_tif = p1_dem_tif_x41y447,
-  #     aoi_ext = NULL,
-  #     flowlines_gpkg = p1_3dhp_gpkg,
-  #     n_stream_pts = 1800,
-  #     out_filename = "2_process/out/grand_lake_x41y477_rem.tif"
-  #   ),
-  #   format = "file"
-  # ),
-  #
-  # tar_target(
-  #   p2_grand_lake_s_rem_tif,
-  #   build_rem_3dhp(
-  #     dem_tif = p1_dem_tif_x42y446,
-  #     aoi_ext = NULL,
-  #     flowlines_gpkg = p1_3dhp_gpkg,
-  #     n_stream_pts = 1800,
-  #     out_filename = "2_process/out/grand_lake_x42y446_rem.tif"
-  #   ),
-  #   format = "file"
-  # )
 )

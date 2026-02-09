@@ -19,11 +19,12 @@ tar_source(c("1_fetch/src", "2_process/src", "3_visualize/src"))
 tar_source(c(
   "1_fetch.R",
   "2_process.R",
-  "3_visualize.R"
+  "3_visualize.R",
+  "4_print.R"
   #"fall_river_targets.R",
   #"sheep_lakes_targets.R",
   #"mill_creek_targets.R"
 ))
 
 # Replace the target list below with your own:
-c(p1_fetch_targets, p2_targets, p3_targets)
+c(p1_fetch_targets, p2_targets, p3_targets, p4_targets)

@@ -435,5 +435,113 @@ p3_targets <- list(
       val_units = "absolute",
       interactive = FALSE
     )
+  ),
+
+  # Sheep Lakes ----
+  ## Dark ----
+  tar_target(
+    p3_sheeplakes_rem_plot_blue_dark,
+    build_rem_plot(
+      rem_rast = terra::rast(p2_sheeplakes_rem_tif),
+      pal = c(
+        "#06162F",
+        "#1957AC",
+        "#6CEDFF",
+        "#ffffff",
+        "#6CEDFF",
+        "#1957AC",
+        "#06162F"
+      ),
+      grad_vals = c(-1, -0.4, -0.2, 0.05, 0.2, 1.2, 2.5),
+      val_units = "absolute",
+      interactive = FALSE
+    )
+  ),
+
+  tar_target(
+    p3_sheeplakes_rem_plot_red_dark,
+    build_rem_plot(
+      rem_rast = terra::rast(p2_sheeplakes_rem_tif),
+      pal = c(
+        "#300000",
+        "#FF4D00",
+        "#FFE261",
+        "#FFFCE2",
+        "#FFE261",
+        "#FF4D00",
+        "#300000"
+      ),
+      grad_vals = c(-1, -0.4, -0.2, 0.05, 0.3, 0.9, 2.2),
+      val_units = "absolute",
+      interactive = FALSE
+    )
+  ),
+
+  tar_target(
+    p3_sheeplakes_rem_plot_green_dark,
+    build_rem_plot(
+      rem_rast = terra::rast(p2_sheeplakes_rem_tif),
+      pal = c(
+        "#1A2600",
+        "#3C7A24",
+        "#E8E1A7",
+        "#FDFDF2",
+        "#E8E1A7",
+        "#3C7A24",
+        "#1A2600"
+      ),
+      grad_vals = c(-0.8, -0.4, -0.1, 0.05, 0.4, 1, 2.2),
+      val_units = "absolute",
+      interactive = FALSE
+    )
+  ),
+
+  ## Light ----
+  tar_target(
+    p3_sheeplakes_rem_plot_blue_light,
+    build_rem_plot(
+      rem_rast = terra::rast(p2_sheeplakes_rem_tif),
+      pal = c("#001529", "#003464", "#1F5078", "#5D89A0", "#C6DEE1", "#F6FDFE"),
+      grad_vals = c(-1, -0.5, 0.3, 0.6, 1.5, 2.4),
+      val_units = "absolute",
+      interactive = FALSE
+    )
+  ),
+
+  tar_target(
+    p3_sheeplakes_rem_plot_red_light,
+    build_rem_plot(
+      rem_rast = terra::rast(p2_sheeplakes_rem_tif),
+      pal = c(
+        "#300000",
+        "#230c4d",
+        "#5b116e",
+        "#c33b4f",
+        "#ea622a",
+        "#f6d68b",
+        "#fcf9f1"
+      ),
+      grad_vals = c(-1.5, -0.2, 0.4, 0.7, 0.9, 1.5, 2.4),
+      val_units = "absolute",
+      interactive = FALSE
+    )
+  ),
+
+  tar_target(
+    p3_sheeplakes_rem_plot_green_light,
+    build_rem_plot(
+      rem_rast = terra::rast(p2_sheeplakes_rem_tif),
+      pal = c(
+        "#1A2600",
+        "#2B5012",
+        "#3C7A24",
+        "#92AD65",
+        "#E8E1A7",
+        "#FDFDF2"
+      ),
+      grad_vals = c(-1, -0.1, 0.4, 1, 1.5, 2.4),
+      val_units = "absolute",
+      interactive = FALSE
+    )
   )
 )

@@ -8,6 +8,9 @@ generate_print <- function(
   h_margins = 1,
   top_margin = 3,
   label_y = NULL,
+  label_x = NULL,
+  label_hjust = 0.5,
+  label_grobs = NULL,
   bg_col = "white",
   text_col = "black"
 ) {
@@ -17,6 +20,7 @@ generate_print <- function(
   plot_width <- output_width - (2 * h_margins)
   plot_height <- plot_width * plot_scale
   label_y <- label_y %||% (output_height - top_margin - plot_height - 0.15)
+  label_x <- label_x %||% output_width / 2
 
   sysfonts::font_add_google(name = "Raleway", regular.wt = 300)
   showtext::showtext_auto()
@@ -36,13 +40,15 @@ generate_print <- function(
     ) +
     cowplot::draw_label(
       label = label_text,
-      x = output_width / 2,
+      x = label_x,
       y = label_y,
+      hjust = label_hjust,
       vjust = 1,
       fontfamily = "Raleway",
       size = 48,
       color = text_col
     ) +
+    label_grobs +
     ggplot2::theme_void()
 
   temp_file <- tempfile(fileext = ".png")

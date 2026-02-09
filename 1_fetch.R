@@ -8,6 +8,7 @@ p1_fetch_targets <- list(
       "x42y448" , "CO_NorthwestCO_2020_D20/TIFF/USGS_1M_13_x42y448_CO_NorthwestCO_2020_D20.tif"                 ,
       "x43y447" , "CO_NorthwestCO_2020_D20/TIFF/USGS_1M_13_x43y447_CO_NorthwestCO_2020_D20.tif"                 ,
       "x44y447" , "CO_DRCOG_2020_B20/TIFF/USGS_1M_13_x44y447_CO_DRCOG_2020_B20.tif"                             ,
+      "x44y448" , "CO_DRCOG_2020_B20/TIFF/USGS_1M_13_x44y448_CO_DRCOG_2020_B20.tif"                             ,
       "x45y447" , "CO_DRCOG_2020_B20/TIFF/USGS_1M_13_x45y447_CO_DRCOG_2020_B20.tif"                             ,
       "x46y450" , "CO_CameronPeakWildfire_2021_D21/TIFF/USGS_1M_13_x46y450_CO_CameronPeakWildfire_2021_D21.tif" ,
       "x48y448" , "CO_CameronPeakWildfire_2021_D21/TIFF/USGS_1M_13_x48y448_CO_CameronPeakWildfire_2021_D21.tif" ,
@@ -36,21 +37,6 @@ p1_fetch_targets <- list(
     "1_fetch/in/noco_hydro.gpkg",
     format = "file"
   )
-
-  # # https://www.sciencebase.gov/catalog/item/620de574d34e6c7e83baa0d6
-  # tar_target(
-  #   p1_dem_x44y448_tif,
-  #   download_files(
-  #     url = paste0(
-  #       "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/",
-  #       "Projects/CO_DRCOG_2020_B20/TIFF/",
-  #       "USGS_1M_13_x44y448_CO_DRCOG_2020_B20.tif" # 44-45 447-448
-  #     ),
-  #     dest_folder = "1_fetch/out/",
-  #     overwrite = TRUE
-  #   ),
-  #   format = "file"
-  # ),
 
   # tar_target(
   #   p1_estes_nhdhr_zip,
